@@ -148,11 +148,10 @@ class NLSDownloader {
 			$path = '';
 
 		//dirty absolute URL
-		$abs = $host . $port . $path . '/' . $rel;
+		$abs = $isLocal ? $path .'/' . $rel : $host . $port . $path . '/' . $rel;
 
 		//replace '//' or '/./' or '/foo/../' with '/'
 		$rg = '@(//)|(/\./)|(/[^/]+/\.\./)@';
-
 
 		//FB::info($abs, 'cycle starts');
 		for($n=1; $n>0; $abs = preg_replace($rg,'/',$abs,-1,$n)) {
@@ -161,7 +160,7 @@ class NLSDownloader {
 
 		// remove host and protocol on local files
 		if ($isLocal)
-			return str_replace($host . $port, '', $abs);
+			return $abs;
 
 		return $scheme . '://' . $abs;
 	}
