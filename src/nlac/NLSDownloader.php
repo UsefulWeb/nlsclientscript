@@ -158,10 +158,10 @@ class NLSDownloader {
 		for($n=1; $n>0; $abs = preg_replace($rg,'/',$abs,-1,$n)) {
 			//FB::log($abs,'abs in cycle');
 		}
-		// remove host and protocol
-		if ($isLocal) {
+
+		// remove host and protocol on local files
+		if ($isLocal)
 			return str_replace($host . $port, '', $abs);
-		}
 
 		return $scheme . '://' . $abs;
 	}
