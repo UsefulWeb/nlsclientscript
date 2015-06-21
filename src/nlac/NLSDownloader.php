@@ -110,13 +110,6 @@ class NLSDownloader {
 		$urlDetails = $base == null ? parse_url($rel) : parse_url($base);
 
 		$isLocal = $urlDetails['host'] === $serverDetails['host'] || $urlDetails['host'] === null;
-		// $isLocal = false;
-
-		// var_dump($urlDetails['host']);
-		// var_dump($serverDetails['host']);
-		// var_dump($isLocal);
-		// echo '<pre>'.print_r($urlDetails,true).'</pre>';
-		// echo '<pre>'.print_r($base,true).'</pre>';
 
 		//FB::info(array($rel, $base), 'toAbsUrl() called');
 		
@@ -160,16 +153,14 @@ class NLSDownloader {
 		//replace '//' or '/./' or '/foo/../' with '/'
 		$rg = '@(//)|(/\./)|(/[^/]+/\.\./)@';
 
-		// var_dump($abs);
-		// var_dump(preg_match_all($rg, $abs));
 
 		//FB::info($abs, 'cycle starts');
 		for($n=1; $n>0; $abs = preg_replace($rg,'/',$abs,-1,$n)) {
 			//FB::log($abs,'abs in cycle');
 		}
-
+		// remove host and protocol
 		if ($isLocal) {
-			return str_replace($host . $port . $path, '', $abs);
+			return str_replace($host . $port, '', $abs);
 		}
 
 		return $scheme . '://' . $abs;
