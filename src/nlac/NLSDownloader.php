@@ -63,6 +63,17 @@ class NLSDownloader {
 	 */	
 	public function get($url) {
 		$this->init();
+
+		$urlDetails = parse_url($url);
+		$serverDetails = parse_url($this->options['serverBaseUrl']);
+
+		// we don't need cURl cause file exists locally
+		if ($urlDetails['host'] === $serverDetails['host'] || $urlDetails['host'] === null) {
+			$path = \Yii::getPathOfAlias('webroot').$urlDetails['path'];
+
+			return file_get_contents($path);
+		}
+
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 		$content = curl_exec($this->ch);
 		if ($this->err = curl_error($this->ch)) {
@@ -93,6 +104,20 @@ class NLSDownloader {
 	 */
 	public function toAbsUrl($rel, $base = null) {
 
+		
+		$serverDetails = parse_url($this->options['serverBaseUrl']);
+
+		$urlDetails = $base == null ? parse_url($rel) : parse_url($base);
+
+		$isLocal = $urlDetails['host'] === $serverDetails['host'] || $urlDetails['host'] === null;
+		// $isLocal = false;
+
+		// var_dump($urlDetails['host']);
+		// var_dump($serverDetails['host']);
+		// var_dump($isLocal);
+		// echo '<pre>'.print_r($urlDetails,true).'</pre>';
+		// echo '<pre>'.print_r($base,true).'</pre>';
+
 		//FB::info(array($rel, $base), 'toAbsUrl() called');
 		
 		if (!$base)
@@ -102,7 +127,7 @@ class NLSDownloader {
 		if (preg_match('@^https?://@',$rel))
 			return $rel;
 		
-		if (!$base || !preg_match('@^https?://@',$base)) {
+		if (!$isLocal && (!$base || !preg_match('@^https?://@',$base) )) {
 			throw new \Exception('base url with scheme must be provided');
 		}
 		
@@ -134,9 +159,17 @@ class NLSDownloader {
 
 		//replace '//' or '/./' or '/foo/../' with '/'
 		$rg = '@(//)|(/\./)|(/[^/]+/\.\./)@';
+
+		// var_dump($abs);
+		// var_dump(preg_match_all($rg, $abs));
+
 		//FB::info($abs, 'cycle starts');
 		for($n=1; $n>0; $abs = preg_replace($rg,'/',$abs,-1,$n)) {
 			//FB::log($abs,'abs in cycle');
+		}
+
+		if ($isLocal) {
+			return str_replace($host . $port . $path, '', $abs);
 		}
 
 		return $scheme . '://' . $abs;
