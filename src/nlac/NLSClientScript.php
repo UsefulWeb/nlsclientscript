@@ -406,7 +406,7 @@ class NLSClientScript extends \CClientScript {
 
 		foreach ($this->css as $id=>$block) {
 			list($css, $media) = $block;
-			$this->css[$id] = NLSCssMerge::minify($css);
+			$this->css[$id][0] = NLSCssMerge::minify($css);
 		}
 	}
 
