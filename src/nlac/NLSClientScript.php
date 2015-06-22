@@ -267,7 +267,7 @@ class NLSClientScript extends \CClientScript {
 			if ($smap = @$_REQUEST['nlsc_map'])
 				$smap = @json_decode($smap);
 		}
-		
+
 		if ($this->mergeJs && !empty($this->scriptFiles[$pos]) && count($this->scriptFiles[$pos]) > $this->mergeAbove) {
 			$finalScriptFiles = array();
 			$name = "/** Content:\r\n";
@@ -329,6 +329,12 @@ class NLSClientScript extends \CClientScript {
 			
 			$finalScriptFiles[$url] = $url;
 			$this->scriptFiles[$pos] = $finalScriptFiles;
+		}
+
+		if ($this->mergeJs && !empty($this->scripts[$pos])) {
+			foreach ($this->scripts[$pos] as $id => $script) {
+				$this->scripts[$pos][$id] = \JShrink\Minifier::minify($script);
+			}
 		}
 	}
 
@@ -396,6 +402,11 @@ class NLSClientScript extends \CClientScript {
 			}//media
 			
 			$this->cssFiles = $newCssFiles;
+		}
+
+		foreach ($this->css as $id=>$block) {
+			list($css, $media) = $block;
+			$this->css[$id] = NLSCssMerge::minify($css);
 		}
 	}
 

@@ -61,7 +61,7 @@ class NLSCssMerge {
 
 	//Simple css minifier script
 	//code based on: http://www.lateralcode.com/css-minifier/
-	protected static function minify($css) {
+	public static function minify($css) {
 		$css = preg_replace( '#/\*.*?\*/#s', '', $css);
 		$css = preg_replace('/\s+/', ' ', $css);
 		return trim(
