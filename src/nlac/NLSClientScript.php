@@ -310,7 +310,7 @@ class NLSClientScript extends \CClientScript {
 			if ($this->forceMergeJs || !file_exists($path)) {
 
 				$merged = '';
-				$nlsCode = ';if (!$.nlsc) $.nlsc={resMap:{}};' . "\r\n";
+				$nlsCode = ';if (!$.nlsc) $.nlsc={resMap:{}, cssMap: []};' . "\r\n";
 				
 				foreach($scriptFiles as $absUrl=>$h) {
 					$ret = $this->downloader->get($absUrl);
@@ -370,6 +370,7 @@ class NLSClientScript extends \CClientScript {
 			}
 
 			//merging css files by "media"
+			$nlsCode = 'if (!$.nlsc) $.nlsc={resMap:{}, cssMap: []};' . "\r\n";
 			foreach($names as $media=>$name) {
 				
 				if (count($files[$media]) <= $this->mergeAbove) {
@@ -391,6 +392,7 @@ class NLSClientScript extends \CClientScript {
 						$css = "/* $absUrl */\r\n" . $this->cssMerger->process($absUrl);
 						
 						$merged .= ($css . "\r\n");
+						$nlsCode .= '$.nlsc.cssMap.push("'.$absUrl.'");' . "\r\n";
 					}
 					
 					$this->downloader->close();
@@ -402,6 +404,7 @@ class NLSClientScript extends \CClientScript {
 			}//media
 			
 			$this->cssFiles = $newCssFiles;
+			$this->registerScript('nlsc.cssMap',$nlsCode);
 		}
 
 		foreach ($this->css as $id=>$block) {
@@ -429,11 +432,11 @@ class NLSClientScript extends \CClientScript {
 		$this->_putnlscode();
 		
 		//merging
-		if ($this->mergeJs) {
-			$this->_mergeJs(self::POS_HEAD);
-		}
 		if ($this->mergeCss) {
 			$this->_mergeCss();
+		}
+		if ($this->mergeJs) {
+			$this->_mergeJs(self::POS_HEAD);
 		}
 
 		parent::renderHead($output);
